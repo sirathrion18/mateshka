@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#C3161C"/>
+  <path d="M0 512 L512 300 L512 512 Z" fill="#9E0F14"/>
+  <!-- cuerpo y pañuelo -->
+  <ellipse cx="256" cy="338" rx="152" ry="150" fill="#17140F"/>
+  <circle cx="256" cy="186" r="104" fill="#17140F"/>
+  <rect x="104" y="440" width="304" height="40" fill="#17140F"/>
+  <!-- delantal -->
+  <ellipse cx="256" cy="352" rx="100" ry="112" fill="#F5F0E5"/>
+  <!-- cara -->
+  <circle cx="256" cy="192" r="66" fill="#F5F0E5"/>
+  <path d="M190 170 Q256 112 322 170 Q300 140 256 136 Q212 140 190 170Z" fill="#E9B44C"/>
+  <circle cx="233" cy="194" r="7.5" fill="#17140F"/>
+  <circle cx="279" cy="194" r="7.5" fill="#17140F"/>
+  <circle cx="221" cy="218" r="12" fill="#C3161C" opacity=".85"/>
+  <circle cx="291" cy="218" r="12" fill="#C3161C" opacity=".85"/>
+  <path d="M244 226 Q256 236 268 226" fill="none" stroke="#17140F" stroke-width="5" stroke-linecap="round"/>
+  <!-- bombilla -->
+  <path d="M270 318 L312 236" stroke="#C9CCD1" stroke-width="9" stroke-linecap="round"/>
+  <rect x="300" y="226" width="26" height="12" rx="4" fill="#C9CCD1" transform="rotate(-62 313 232)"/>
+  <!-- mate -->
+  <path d="M206 318 Q200 392 256 408 Q312 392 306 318 Z" fill="#C3161C"/>
+  <path d="M206 318 Q200 392 256 408 Q312 392 306 318 Z" fill="none" stroke="#17140F" stroke-width="6"/>
+  <rect x="198" y="306" width="116" height="16" rx="4" fill="#17140F"/>
+  <ellipse cx="256" cy="308" rx="46" ry="7" fill="#5E7F2A"/>
+  <path d="M232 352 L280 352 M240 372 L272 372" stroke="#F5F0E5" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+  <!-- manos -->
+  <circle cx="200" cy="356" r="19" fill="#F5F0E5" stroke="#17140F" stroke-width="5"/>
+  <circle cx="312" cy="356" r="19" fill="#F5F0E5" stroke="#17140F" stroke-width="5"/>
+</svg>
