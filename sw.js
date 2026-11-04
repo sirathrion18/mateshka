@@ -1,5 +1,5 @@
 /* Матешка: funciona sin conexión. Subí VERSION en cada cambio para que el celu baje la versión nueva. */
-const VERSION = "mateshka-v1";
+const VERSION = "mateshka-v2";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {

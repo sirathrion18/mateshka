@@ -542,7 +542,7 @@ const RES={
    a2 = Русский язык. 5 элементов A2 (Эсмантова), visto hasta p. 48. */
 const BOOKS=[
  {id:"a1",name:"5 элеме'нтов · A1",es:"Libro A1, lecciones 1–20",lessons:Array.from({length:20},(_,i)=>i+1),first:1},
- {id:"pp",name:"Primeros pasos · уроки 9–11",es:"Manual de Maya: genitivo, dativo, instrumental y adjetivos",lessons:[9,10,11],first:9},
+ {id:"pp",name:"Primeros pasos · уроки 9–11",es:"Manual de la profe: genitivo, dativo, instrumental y adjetivos",lessons:[9,10,11],first:9},
  {id:"a2",name:"5 элеме'нтов · A2",es:"Libro A2: repaso inicial y lecciones 21–40",lessons:[0].concat(Array.from({length:20},(_,i)=>i+21)),first:0}
 ];
 const LESSON_LABEL=(b,n)=>b==="a2"&&n===0?"Repaso":"Урок "+n;
@@ -963,7 +963,7 @@ function rHome(){
   ${pinned.length?`<div class="fbig">${pinned.map(f=>`<button class="fcard" data-act="focus" data-id="${f.id}"><span class="fc-t ru">${esc(f.title)}</span>${f.photo&&PH[f.id]?`<img src="${PH[f.id]}" alt="">`:""}<span class="fc-b ru">${esc(f.back)}</span><span class="fc-open">Abrir para estudiar</span></button>`).join("")}</div>`:`<p class="note">No hay fichas fijadas. Creá una en Repaso.</p>`}
  </section>
  <section class="sec"><h2 class="sec-t">Con tu IA</h2>
-  <div class="tools"><button class="tool" data-act="tool" data-k="ex"><b>Corregir un ejercicio</b><span>Arma el pedido con lo que viste y el método de Maya.</span></button>
+  <div class="tools"><button class="tool" data-act="tool" data-k="ex"><b>Corregir un ejercicio</b><span>Arma el pedido con lo que viste y el método de tu profe.</span></button>
   <button class="tool" data-act="tool" data-k="q"><b>Preguntar una duda</b><span>Le pasa a tu IA lo que viste para que no se adelante.</span></button></div>
   ${S.writings.length?`<button class="linkbtn" data-act="history" style="align-self:flex-start">Mis redacciones y consultas (${S.writings.length})</button>`:""}</section>
  ${errs.length?`<section class="sec"><h2 class="sec-t">Lo que más se te escapa</h2><div class="bars">${errs.map(([t,c])=>`<div class="bar-row"><div class="bar-top"><b>${esc(t)}</b><span class="c">${c}</span></div><div class="bar"><i style="width:${c/emax*100}%"></i></div></div>`).join("")}</div><p class="note">Sale de lo que marcás al guardar cada corrección.</p></section>`:""}
@@ -997,7 +997,7 @@ function openWrite(pid){curOv=null;const p=PROMPTS_.find(x=>x.id===pid);let w=wr
   <div class="tagset">${ERR_TAGS.map(t=>`<button class="tagb" data-act="wtag" data-t="${esc(t)}" aria-pressed="${wtags.has(t)}">${esc(t)}</button>`).join("")}</div>
   <button class="btn red block" data-act="wCorrSave" data-id="${pid}" ${w?"":"disabled"}>${w&&w.corr?"Guardar corrección":"Guardar corrección · +10"}</button></section>`);
  const ta=document.getElementById("wText");const upd=()=>{const n=ta.value.split(/\n/).filter(x=>x.trim()).length;const words=ta.value.trim()?ta.value.trim().split(/\s+/).length:0;document.getElementById("wCount").textContent=words+" palabras · "+n+" renglones"};ta.addEventListener("input",upd);upd()}
-function fixPrompt(consigna,src,text){return `Sos mi corrector de ruso. Estudio con mi profesora, Maya. Hablo castellano (Argentina) y estoy en nivel A2.
+function fixPrompt(consigna,src,text){return `Sos mi corrector de ruso. Estudio con mi profesora. Hablo castellano (Argentina) y estoy en nivel A2.
 
 LO QUE YA VI
 ${seenSummary()}
@@ -1013,7 +1013,7 @@ CÓMO CORREGIRME
 
 ${consigna?`CONSIGNA${src?" ("+src+")":""}\n${bare(consigna)}\n\n`:""}MI TEXTO
 ${text}`}
-function askPrompt(q){return `Sos mi ayudante de ruso. Estudio con mi profesora, Maya. Hablo castellano (Argentina) y estoy en nivel A2.
+function askPrompt(q){return `Sos mi ayudante de ruso. Estudio con mi profesora. Hablo castellano (Argentina) y estoy en nivel A2.
 
 LO QUE YA VI
 ${seenSummary()}
@@ -1030,7 +1030,7 @@ async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(
 
 /* herramientas con la IA */
 function openTool(k,prefill){curOv=null;
- if(k==="ex")overlay("Corregir un ejercicio",`<p class="note">Para cualquier ejercicio del libro o de Maya. Si es de completar, escribí la consigna y tus respuestas.</p>
+ if(k==="ex")overlay("Corregir un ejercicio",`<p class="note">Para cualquier ejercicio del libro o de la profe. Si es de completar, escribí la consigna y tus respuestas.</p>
   <div class="field"><label for="tCons">Consigna (opcional)</label><input id="tCons" placeholder="Ej.: Задание 27, p. 40"></div>
   <div class="field"><label for="tText">Tu respuesta</label><textarea id="tText" class="wtext ru" rows="6" placeholder="Escribí o pegá tu ejercicio"></textarea></div>
   <div class="steps3"><button class="btn red" data-act="tCopy" data-k="ex">Copiar el pedido</button><a class="btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Abrir Gemini</a></div>
@@ -1187,7 +1187,7 @@ function openImport(k){impK=k||"v";const opts=BK.map(b=>b.lessons.map(n=>`<optio
  <ol class="howto"><li>Copiá el pedido y pegalo en tu IA junto con la foto o el PDF del material.</li><li>Pegá acá la lista que te devuelva.</li><li>Revisá la vista previa y guardá.</li></ol>
  <div class="steps3"><button class="btn red" data-act="impCopy">Copiar el pedido</button><a class="btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Abrir Gemini</a></div>
  <div class="field"><label for="impL">¿De qué lección es?</label><select id="impL">${opts}</select></div>
- <div class="field"><label for="impSrc">Nombre del material</label><input id="impSrc" placeholder="Ej.: Fotocopia de Maya, 14/10" value="Material de Maya"></div>
+ <div class="field"><label for="impSrc">Nombre del material</label><input id="impSrc" placeholder="Ej.: Fotocopia de la profe, 14/10" value="Material de la profe"></div>
  <div class="field"><label for="impT">Pegá la lista</label><textarea id="impT" class="wtext ru" rows="8" placeholder="${impK==="v"?"ви́деть | ver | ви́жу, ви́дишь, …":"но́вый | nuevo"}"></textarea></div>
  <div id="impPrev"></div><button class="btn block" data-act="impSave">Guardar</button>`);
  const sel=document.getElementById("impL");sel.value="pp:11";const t=document.getElementById("impT");t.addEventListener("input",()=>{const r=parseImport();document.getElementById("impPrev").innerHTML=r.length?`<p class="note">${r.length} para sumar: <span class="ru">${esc(r.slice(0,8).map(x=>x[0]).join(", "))}${r.length>8?"…":""}</span></p>`:""})}
@@ -1262,8 +1262,8 @@ function openNewEntry(){const opts=BK.map(b=>b.lessons.map(n=>`<option value="${
  <div class="field"><label for="eDate">Fecha</label><input type="date" id="eDate" value="${today()}" required></div>
  <div class="field"><label for="eLes">¿Qué vieron?</label><select id="eLes">${opts}</select></div>
  <div class="field"><label for="eTitle">Tema</label><input id="eTitle" placeholder="Ej.: Глаголы с чередованием"></div>
- <div class="field"><label for="eNotes">Notas</label><textarea id="eNotes" rows="4" placeholder="Qué dijo Maya, tarea, dudas para la próxima."></textarea></div>
- <div class="field"><label for="eMat">Material de Maya (nombre)</label><input id="eMat" placeholder="Ej.: Fotocopia de verbos"></div>
+ <div class="field"><label for="eNotes">Notas</label><textarea id="eNotes" rows="4" placeholder="Qué dijo la profe, tarea, dudas para la próxima."></textarea></div>
+ <div class="field"><label for="eMat">Material de la profe (nombre)</label><input id="eMat" placeholder="Ej.: Fotocopia de verbos"></div>
  <div id="eTopics"></div>
  <p class="note">Para sumar los verbos, adjetivos o palabras de ese material, usá «Sumar desde tu material» en Consulta.</p>
  <button class="btn red block" type="submit">Guardar clase</button></form>`);
@@ -1336,7 +1336,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act],[data
   case "import":openImport(d.k);break;
   case "impK":{const t=val("impT");openImport(d.k);document.getElementById("impT").value=t;break}
   case "impCopy":copyText(importPrompt(impK));break;
-  case "impSave":{const rows=parseImport();if(!rows.length){toast("No encontré líneas con el formato «ruso | castellano»");break}const [bk,ln]=val("impL").split(":");const src=val("impSrc")||"Material de Maya";let n=0;
+  case "impSave":{const rows=parseImport();if(!rows.length){toast("No encontré líneas con el formato «ruso | castellano»");break}const [bk,ln]=val("impL").split(":");const src=val("impSrc")||"Material de la profe";let n=0;
    rows.forEach(r=>{if(impK==="v"){const forms=r[2]?r[2].split(/\s*,\s*/):null;const id="v:"+bare(r[0]);if(!S.extra.v.some(x=>x.id===id&&x.src===src)){S.extra.v.push({id,inf:r[0],es:r[1],book:bk,lesson:+ln,group:forms&&forms.length===6?(VERBS.find(v=>v.id===id)||{group:"I"}).group:"I",forms:forms&&forms.length===6?forms:null,src});n++}}
     else if(impK==="a"){const id="a:"+bare(r[0]);if(!S.extra.a.some(x=>x.id===id&&x.src===src)){S.extra.a.push({id,m:r[0],es:r[1],book:bk,lesson:+ln,src});n++}}
     else{if(!S.extra.w)S.extra.w=[];const id="w:"+bare(r[0]);if(!S.extra.w.some(x=>x.id===id)){S.extra.w.push({id,ru:r[0],es:r[1],book:bk,lesson:+ln,src});n++}}});
