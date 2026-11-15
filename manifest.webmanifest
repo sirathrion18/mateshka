@@ -1,14 +1,14 @@
 {
   "name": "Матешка",
   "short_name": "Матешка",
-  "description": "Bitácora de ruso: biblioteca, casos, repaso y reto diario.",
+  "description": "Bitácora de ruso: biblioteca, casos, pares de verbos, repaso y juegos diarios.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ECE5D5",
-  "theme_color": "#ECE5D5",
+  "background_color": "#FFF4EC",
+  "theme_color": "#FFF4EC",
   "icons": [
     {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
     {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
