@@ -120,7 +120,7 @@ const RES={
    a2 = Русский язык. 5 элементов A2 (Эсмантова), visto hasta p. 48. */
 const BOOKS=[
  {id:"a1",name:"5 элеме'нтов · A1",es:"Libro A1, lecciones 1–20",lessons:Array.from({length:20},(_,i)=>i+1),first:1},
- {id:"pp",name:"Primeros pasos · уроки 9–11",es:"Manual de la profe: genitivo, dativo, instrumental y adjetivos",lessons:[9,10,11],first:9},
+ {id:"pp",name:"Primeros pasos · уроки 9\u2060–\u206011",es:"Manual de la profe: genitivo, dativo, instrumental y adjetivos",lessons:[9,10,11],first:9},
  {id:"a2",name:"5 элеме'нтов · A2",es:"Libro A2: repaso inicial y lecciones 21–40",lessons:[0].concat(Array.from({length:20},(_,i)=>i+21)),first:0}
 ];
 const LESSON_LABEL=(b,n)=>b==="a2"&&n===0?"Repaso":"Урок "+n;

@@ -6,7 +6,7 @@ const BK=deep(BOOKS);
 const LES={a1:LESSONS.map(l=>Object.assign({},l,{p:String(l.p)})),pp:deep(PP_LESSONS),a2:deep(A2_LESSONS)};
 const getL=(b,n)=>LES[b].find(l=>l.n===n);
 const bookName=b=>BK.find(x=>x.id===b).name;
-const lbl=(b,n)=>LESSON_LABEL(b,n);
+const lbl=(b,n)=>LESSON_LABEL(b,n).replace(/ (\d)/g,"\u00a0$1");
 const RESUMEN={};for(const n in RES)RESUMEN["a1"+n]=deep(RES[n]).map(g=>[g[0],g[1],[g[2]]]);
 const R2=deep(RES2);for(const k in R2)RESUMEN[k]=R2[k];
 const RX=deep(RES_EXTRA);for(const n in RX)RESUMEN["a1"+n]=(RESUMEN["a1"+n]||[]).concat(RX[n]);
@@ -121,11 +121,14 @@ function afterGame(){const d=day();const n=gamesDone();
 /* ---------- interfaz ---------- */
 const main=document.getElementById("main"),ov=document.getElementById("ov"),dock=document.getElementById("dock");
 let tab="home";
-const HEAD={home:["МАТЕШКА",()=>{const nw=nowL("a2");return nw!=null?"Ahora: Урок "+nw+" · A2":"Tu ruso de todos los días"}],lib:["БИБЛИОТЕКА",()=>"Tus libros y lo que viste"],review:["КАРТОЧКИ",()=>"Repaso con tarjetas"],ref:["СПРАВОЧНИК",()=>"Casos, pares, verbos y adjetivos"]};
+const HEAD={home:["МАТЕШКА",()=>{const nw=nowL("a2");return nw!=null?"Ahora: Урок "+nw+" · A2":"Tu ruso de todos los días"}],lib:["БИБЛИОТЕКА",()=>"Tus libros y lo que viste"],review:["КАРТОЧКИ",()=>"Repaso con tarjetas"],ref:["СПРАВОЧНИК",()=>"Casos, pares y más"]};
 const TABS=["home","lib","review","ref"];
 function go(t){const prev=tab;tab=t;document.querySelectorAll(".tab[data-tab]").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===t?"page":"false"));
  document.getElementById("hTitle").textContent=HEAD[t][0];document.getElementById("hSub").textContent=HEAD[t][1]();render();window.scrollTo(0,0);dockTo(TABS.indexOf(t),prev===t)}
-function render(){({home:rHome,lib:rLib,review:rReview,ref:rRef})[tab]();updateDavai()}
+function render(){({home:rHome,lib:rLib,review:rReview,ref:rRef})[tab]();noBreak(main);updateDavai()}
+/* Que ninguna palabra quede partida en dos renglones: el guion de una terminación (-ом) y el de un rango (9–11) no cortan línea. */
+function noBreak(root){if(!root)return;const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const ns=[];let n;while(n=tw.nextNode())ns.push(n);
+ ns.forEach(n=>{const t=n.textContent;if(!/[-–\/]/.test(t))return;const u=t.replace(/(^|[\s(\/«])-(?=[а-яёА-ЯЁ])/g,"$1\u2011").replace(/([а-яё])-(?=[\s)\/.,:;»]|$)/gi,"$1\u2011").replace(/(\d)–(\d)/g,"$1\u2060–\u2060$2");if(u!==t)n.textContent=u})}
 function toast(t){document.querySelectorAll(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.setAttribute("role","status");d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2500)}
 const fmtDate=s=>{const d=pd(s);return {d:d.getDate(),m:DIAS[d.getDay()]+" "+MESES[d.getMonth()]}};
 const ICON={lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>',
@@ -140,12 +143,13 @@ const ICON={lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
  verbs:'<svg viewBox="0 0 32 32" fill="none" stroke="#2A1A1F" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"><path d="M5 11h16l-4-4M27 21H11l4 4"/><circle cx="25" cy="11" r="2.5" fill="#fff"/><circle cx="7" cy="21" r="2.5" fill="#fff"/></svg>'};
 function overlay(title,body,opts){opts=opts||{};const first=!ov.firstChild;
  ov.innerHTML=`<div class="ov ${first?"fade-in":""}" role="dialog" aria-modal="true" aria-label="${esc(bare(title))}"><div class="ov-in"><div class="ov-bar gut"><button class="back" data-act="${opts.backAct||"close"}" aria-label="Volver">${ICON.back}</button><h2>${title}</h2>${opts.right||""}</div>
- <div class="ov-body gut" id="ovBody">${body}</div>${opts.foot||""}</div></div>`;
+ <div class="ov-body gut" id="ovBody">${body}</div>${opts.foot||""}</div></div>`;noBreak(ov);
  if(first){const b=ov.querySelector(".back");if(b)try{b.focus({preventScroll:true})}catch(e){}}}
 let backStack=[],curOv=null;
 function closeOv(){const prev=backStack.pop();if(prev){prev();return}curOv=null;ov.innerHTML="";render()}
 function push(fn){backStack.push(fn)}
 new MutationObserver(()=>document.body.classList.toggle("lock",!!ov.firstChild)).observe(ov,{childList:true});
+const nbObs=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(x=>{if(x.nodeType===1)noBreak(x)})));nbObs.observe(main,{childList:true,subtree:true});nbObs.observe(ov,{childList:true,subtree:true});
 window.addEventListener("scroll",()=>document.getElementById("hdr").classList.toggle("scrolled",window.scrollY>6),{passive:true});
 
 /* ---------- tema claro / oscuro ---------- */

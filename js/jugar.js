@@ -56,13 +56,14 @@ function startGame(kind,practice){jg={kind,practice:!!practice,i:0,res:[],tries:
  jg.res=jg.items.map(()=>null);renderGame()}
 function openCases(){const d=day();if(jg&&jg.kind==="cases"&&jg.date===today()&&jg.i<jg.items.length){renderGame();return}if(d.c){gameDone("cases");return}startGame("cases")}
 function openVerbs(){const d=day();if(jg&&jg.kind==="verbs"&&jg.date===today()&&jg.i<jg.items.length){renderGame();return}if(d.v){gameDone("verbs");return}startGame("verbs")}
-function gTitle(){return jg.kind==="cases"?"Casos · "+caseLabel(casesPick()):"Verbos · "+VMODE_NAME[jg.mode]}
+function gTitle(){return jg.kind==="cases"?"Casos":"Verbos"}
+function gSub(){return jg.kind==="cases"?caseLabel(casesPick()):VMODE_NAME[jg.mode]}
 function stepsHTML(){return `<div class="jsteps" aria-hidden="true">${jg.items.map((_,k)=>`<i class="${jg.res[k]==="ok"?"ok":jg.res[k]==="bad"?"bad":k===jg.i?"cur":""}"></i>`).join("")}</div>`}
 const KIND_LABEL={elegir:["Elegí","var(--lilac)"],completar:["Completá","var(--butter)"],propia:["Tu oración","var(--pink)"],conjugar:["Conjugá","var(--butter)"],historia:["Mini historia","var(--mint)"]};
 
 function renderGame(){if(!jg)return;if(jg.i>=jg.items.length){finishGame();return}
  const it=jg.items[jg.i];const kl=KIND_LABEL[it.type];let body="";
- const head=`<div class="jhead"><div class="jtop"><span class="counter">${jg.i+1} de ${jg.items.length}${jg.practice?" · práctica":""}</span><span class="jkind"><span class="k" style="--c:${kl[1]}">${kl[0]}</span></span></div>${stepsHTML()}</div>`;
+ const head=`<div class="jhead"><div class="jtop"><span class="counter">${jg.i+1} de ${jg.items.length} · ${esc(gSub())}${jg.practice?" · práctica":""}</span><span class="jkind"><span class="k" style="--c:${kl[1]}">${kl[0]}</span></span></div>${stepsHTML()}</div>`;
  if(it.kind==="case")body=caseHTML(it);else body=aspectHTML(it);
  overlay(gTitle(),head+body);
  const inp=document.getElementById("jIn");if(inp&&jg.ans==null){setTimeout(()=>{try{inp.focus({preventScroll:true})}catch(e){}},60);inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();checkTyped()}})}
@@ -139,5 +140,5 @@ function finishGame(){let ok=0,n=0;jg.items.forEach((it,k)=>{if(it.type==="histo
  ${jg.kind==="cases"?`<button class="linkbtn" data-act="jRef" style="align-self:center">Ver las tablas de ${esc(caseLabel(casesPick()))}</button>`:`<button class="linkbtn" data-act="jPairs" style="align-self:center">Ver la tabla de pares</button>`}</div>`);
  if(first){tick();afterGame()}}
 function gameDone(kind){const d=day();const r=kind==="cases"?d.c:d.v;
- overlay(kind==="cases"?"Casos · "+caseLabel(casesPick()):"Verbos · "+VMODE_NAME[verbMode()],`<div class="jend"><div class="score"><span class="n">${r.ok}/${r.n}</span><span class="t">Ya jugaste hoy.<br><span class="note" style="color:var(--ink)">Mañana ${kind==="cases"?"tocan otros casos":"cambia el juego: "+VMODE_NAME[VMODES[(dayNum()+1)%3]]}.</span></span></div>
+ overlay(kind==="cases"?"Casos":"Verbos",`<div class="jend"><div class="score"><span class="n">${r.ok}/${r.n}</span><span class="t">Ya jugaste hoy.<br><span class="note" style="color:var(--ink)">Mañana ${kind==="cases"?"tocan otros casos":"cambia el juego: "+VMODE_NAME[VMODES[(dayNum()+1)%3]]}.</span></span></div>
  <button class="btn red block" data-act="jAgain" data-k="${kind}">Otra ronda (práctica)</button><button class="btn block" data-act="close">Volver</button></div>`)}

@@ -277,8 +277,8 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .acol{padding:10px 8px 12px;display:flex;flex-direction:column;gap:6px;border-right:1.5px solid var(--line);min-width:0}
 .acol:last-child{border-right:0}
 .acol .g{font-size:12px;font-weight:700;color:var(--mute)}
-.acol .e{font-family:var(--fr);font-weight:700;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
-.acol .x{font-family:var(--fr);font-size:13.5px;border-top:1.5px dashed var(--line);padding-top:6px;line-height:1.3;overflow-wrap:anywhere}
+.acol .e{font-family:var(--fr);font-weight:700;font-size:15px;line-height:1.25;overflow-wrap:normal}
+.acol .x{font-family:var(--fr);font-size:13.5px;border-top:1.5px dashed var(--line);padding-top:6px;line-height:1.3;overflow-wrap:normal}
 .acol .x span{display:block;font-size:11.5px;color:var(--mute);font-family:var(--fb)}
 .acol.same .e{color:var(--mute)}
 .end{color:var(--acc);font-weight:800}
@@ -304,7 +304,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .arow .top{display:flex;justify-content:space-between;gap:8px}
 .ameta{font-size:11.5px;color:var(--mute);text-align:right}
 .aforms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.aforms span{font-size:13.5px;overflow-wrap:anywhere}.aforms b{display:block;font-size:11px;color:var(--mute)}
+.aforms span{font-size:13.5px;overflow-wrap:normal}.aforms b{display:block;font-size:11px;color:var(--mute)}
 /* pares */
 .pfil{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px}
 .pfil::-webkit-scrollbar{display:none}
@@ -332,7 +332,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .pbar i{display:block;height:100%;background:var(--acc);transition:width .35s}
 .qcard{background:var(--card);border:2px solid var(--bc);border-radius:22px;box-shadow:var(--sh);padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-height:150px;justify-content:center}
 .qcard .src{font-size:12px;font-weight:700;color:var(--mute)}
-.qcard .q{font-size:26px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.qcard .q{font-size:26px;font-weight:700;line-height:1.25;overflow-wrap:normal}
 .qcard .q.small{font-size:19px}
 .hint{font-size:14px;color:var(--mute)}
 .opts{display:flex;flex-direction:column;gap:10px}
@@ -359,7 +359,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .jcard{background:var(--card);border:2px solid var(--bc);border-radius:22px;box-shadow:var(--sh);padding:18px 16px;display:flex;flex-direction:column;gap:12px;animation:in .3s both}
 .jkind{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--mute)}
 .jkind .k{border:2px solid var(--bc);border-radius:999px;padding:2px 9px;background:var(--c,var(--lilac));color:var(--ink)}
-.jq{font-size:22px;font-weight:600;line-height:1.4;margin:0;overflow-wrap:anywhere}
+.jq{font-size:22px;font-weight:600;line-height:1.4;margin:0;overflow-wrap:normal}
 .jq .gap{display:inline-block;min-width:74px;border-bottom:3px solid var(--acc);text-align:center;padding:0 4px;color:var(--acc);font-weight:700}
 .jq .gap.ok{color:var(--ok);border-color:var(--ok)}
 .jw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14.5px}
@@ -433,9 +433,20 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .dr{border-bottom:1.5px solid var(--line)}
 .dtab .dr:last-child{border-bottom:0}
 .dl{display:flex;flex-direction:column;gap:2px;font-size:14px;min-width:0}
-.dl span{font-size:12.5px;color:var(--mute);overflow-wrap:anywhere}
+.dl span{font-size:12.5px;color:var(--mute);overflow-wrap:normal}
 .dc{display:flex;flex-direction:column;gap:3px;min-width:0}
-.dc .e{font-weight:700;font-size:14.5px;line-height:1.25;overflow-wrap:anywhere}
-.dc .x{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.dc .e{font-weight:700;font-size:14.5px;line-height:1.25;overflow-wrap:normal}
+.dc .x{font-size:14px;line-height:1.3;overflow-wrap:normal}
 .dn{margin:0;padding:8px 12px 10px;font-size:12.5px;color:var(--mute);border-top:1.5px solid var(--line)}
 .ctab tr.gband th{background:var(--bg2);font-size:12px;font-weight:800;padding:5px 8px}
+/* Palabras enteras: nunca se parten a mitad (pedido de Agus, 16/11). */
+.dc .e,.dc .x,.dl b,.dl span,.acol .e,.acol .x,.aforms span,.ctab td,.ctab th,.word .r,.prow .ru,.opt,.jw .wbase,.tag,.chip{word-break:keep-all;hyphens:none}
+.dc .x,.dl span,.ctab td .x,.prow .ru{white-space:nowrap}
+.dc .e small,.ctab td small.en{display:block;font-size:11.5px;font-weight:500;color:var(--mute);white-space:normal;font-family:var(--fb)}
+@media (max-width:480px){.aforms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:400px){.tab small{font-size:10.5px;letter-spacing:-.01em}.dock{grid-template-columns:1fr 1fr 76px 1fr 1fr}.dh,.dr{grid-template-columns:76px 1fr 1fr;padding:8px 10px}}
+.dl b{font-size:13px}
+.dh,.dr{grid-template-columns:86px 1fr 1fr}
+.dc .x{font-size:13.5px}
+@media (max-width:400px){.tab small{font-size:10px;letter-spacing:-.02em}.dh,.dr{grid-template-columns:84px 1fr 1fr}.tab{padding:0}}
+.jtop{gap:10px}.jtop .counter{min-width:0}

@@ -46,6 +46,8 @@ const DT=[
 ].map(t=>Object.assign(t,{an:t.an&&A(t.an),in:A(t.in)}));
 const GN={m:"Masculino · м.",n:"Neutro · ср.",f:"Femenino · ж."};
 const endOf=(t,nm,i,kind)=>{const x=t.e[nm][i];return Array.isArray(x)?x[kind==="an"?0:1]:x};
+/* «-ов (-ей tras ж, ш, ч, щ)» → la terminación en grande y la aclaración chiquita abajo, sin partir palabras. */
+function endHTML(t,nm,i,kind){const x=endOf(t,nm,i,kind);const m=/^(.*?)\s*\((.+)\)$/.exec(x);return m?esc(m[1])+`<small class="en">${esc(m[2])}</small>`:esc(x)}
 function exCell(w,nm,i){const f=DF[w];if(!f)return "";const base=f.s[0],form=f[nm][i];return i===0&&nm==="s"?esc(form):endHL(base,form)}
 /* Un caso: tabla por terminación, singular y plural lado a lado. */
 function declTable(kind,i){const rows=DT.filter(t=>t[kind]);let g0="";
@@ -53,15 +55,15 @@ function declTable(kind,i){const rows=DT.filter(t=>t[kind]);let g0="";
  <div class="dtab"><div class="dh"><span>Termina en</span><span>Singular</span><span>Plural</span></div>
  ${rows.map(t=>{const w=t[kind];const band=t.g!==g0?`<div class="dg">${GN[t.g]}</div>`:"";g0=t.g;
   return band+`<div class="dr"><span class="dl"><b>${esc(t.lab)}</b><span class="ru">${esc(w)}</span></span>
-  <span class="dc"><span class="e ru">${esc(endOf(t,"s",i,kind))}</span><span class="x ru">${exCell(w,"s",i)}</span></span>
-  <span class="dc"><span class="e ru">${esc(endOf(t,"p",i,kind))}</span><span class="x ru">${exCell(w,"p",i)}</span></span></div>`}).join("")}</div>
+  <span class="dc"><span class="e ru">${endHTML(t,"s",i,kind)}</span><span class="x ru">${exCell(w,"s",i)}</span></span>
+  <span class="dc"><span class="e ru">${endHTML(t,"p",i,kind)}</span><span class="x ru">${exCell(w,"p",i)}</span></span></div>`}).join("")}</div>
  ${kind==="an"?`<p class="dn">Casi no hay neutros que sean personas o animales, por eso esta tabla no tiene neutro.</p>`:""}</div>`}
 /* Todos los casos: una tabla por número (singular o plural), filas por terminación y columnas por caso. */
 function declAll(kind,nm){const H=["Nom.","Gen.","Dat.","Acus.","Instr.","Prep."];const rows=DT.filter(t=>t[kind]);let g0="";
  return `<div class="atab ${kind}"><div class="ah">${kind==="an"?"Animado":"Inanimado"} · ${nm==="s"?"singular":"plural"} <small>${kind==="an"?"personas y animales":"cosas"}</small></div>
  <div class="tscroll" style="border:0;border-radius:0;box-shadow:none"><table class="ctab mtab" style="min-width:640px"><thead><tr><th>Termina en</th>${H.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>
  ${rows.map(t=>{const w=t[kind];const band=t.g!==g0?`<tr class="gband"><th colspan="7">${GN[t.g]}</th></tr>`:"";g0=t.g;
-  return band+`<tr><th>${esc(t.lab)}<br><span class="alt ru">${esc(DF[w].s[0])}</span></th>${H.map((_,i)=>`<td><span class="ru" style="font-weight:700">${esc(endOf(t,nm,i,kind))}</span><span class="x ru">${exCell(w,nm,i)}</span></td>`).join("")}</tr>`}).join("")}
+  return band+`<tr><th>${esc(t.lab)}<br><span class="alt ru">${esc(DF[w].s[0])}</span></th>${H.map((_,i)=>`<td><span class="ru" style="font-weight:700">${endHTML(t,nm,i,kind)}</span><span class="x ru">${exCell(w,nm,i)}</span></td>`).join("")}</tr>`}).join("")}
  </tbody></table></div></div>`}
 function allCasesHTML(){const H=["Nom.","Gen.","Dat.","Acus.","Instr.","Prep."];
  return `<div class="seg mini" role="group" aria-label="Número" style="align-self:flex-start"><button data-act="cnum" data-v="s" aria-pressed="${caseNum==="s"}">Singular</button><button data-act="cnum" data-v="p" aria-pressed="${caseNum==="p"}">Plural</button></div>
