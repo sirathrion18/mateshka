@@ -23,13 +23,13 @@ function fitPrep(tpl,ans){let s=tpl;const b=bare(ans).toLowerCase();
  if(/(^| )в ___/.test(s)&&/^(в|ф)[^аеёиоуыэюя]/.test(b))s=s.replace(/(^| )в ___/,"$1во ___");
  if(/(^| )к ___/.test(s)&&/^(к|г)[^аеёиоуыэюя]/.test(b))s=s.replace(/(^| )к ___/,"$1ко ___");
  return s}
-function ruleKey(c,n,num){if(c===3){if(num==="p")return n.an?"pa":"pi";if(n.g==="m")return n.an?"ma":"mi";return n.g}return num==="p"?"p":n.g}
+function ruleKey(c,n,num){const d=n.d||n.g;if(num==="p"){if(c===3)return d==="n"?"pn":"p"+d+(n.an?"a":"i");return "p"+d}if(c===3&&d==="m")return n.an?"ma":"mi";return d}
 function caseItem(c,type,used,r){const tpls=shuffle(CASE_TPL[c]);
  for(const t of tpls){if(used.t.has(c+t[0]))continue;const tags=t[1].split(" ");
   const ns=NOUNS.filter(n=>!used.n.has(n.w)&&n.t.split(" ").some(x=>tags.includes(x))&&(t[2]!=="p"||n.p));if(!ns.length)continue;
   const n=ns[Math.floor(r()*ns.length)];const num=t[2]==="sp"?(n.p&&r()<.4?"p":"s"):t[2];const F=n[num].split(",");const ans=F[c];
   used.t.add(c+t[0]);used.n.add(n.w);
-  const it={kind:"case",type,c,w:n.w,g:n.g,an:n.an,num,es:n.es,nota:n.nota||"",ans,tpl:fitPrep(t[0],ans),hint:t[3],rule:CASE_RULE[c][ruleKey(c,n,num)]};
+  const it={kind:"case",type,c,w:n.w,g:n.g,an:n.an,num,es:n.es,nota:(num==="p"?n.np:n.nota)||"",ans,tpl:fitPrep(t[0],ans),hint:t[3],rule:CASE_RULE[c][ruleKey(c,n,num)]};
   if(type==="elegir"){const o=[ans];shuffle(F.concat(num==="s"&&n.p?n.p.split(","):[])).forEach(f=>{if(o.length<4&&!o.some(x=>norm(x)===norm(f)))o.push(f)});it.opts=shuffle(o)}
   return it}
  return null}
@@ -83,7 +83,7 @@ function caseHTML(it){const num=it.num==="p"?"plural":"singular";
  if(it.type==="elegir"){h+=`<div class="opts">${it.opts.map((o,k)=>{let c="";if(answered){if(norm(o)===norm(it.ans))c="right";else if(jg.ans===k)c="wrong"}return `<button class="opt ru ${c}" data-act="jPick" data-k="${k}" ${answered?"disabled":""}>${esc(o)}${c==="right"?"<span>✓</span>":c==="wrong"?"<span>✗</span>":""}</button>`}).join("")}</div>`}
  else if(!answered){h+=`<div class="jin"><input id="jIn" class="ru" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Escribí la forma" value="${esc(jg.txt)}" aria-label="Tu respuesta"><button class="btn red" data-act="jCheck">Listo</button></div>
   ${jg.tries>0?`<div class="fb hint"><b class="t">Casi</b><p>${esc(it.rule)}</p><p>Probá otra vez.</p></div>`:""}`}
- if(answered)h+=`<div class="fb ${ok?"ok":"bad"}"><b class="t">${ok?(jg.tries>0?"¡Bien, a la segunda!":pick(["¡Bien!","¡Eso!","Отлично!","¡Perfecto!"])):"Era «"+esc(it.ans)+"»"}</b><p>${esc(it.rule)}</p>${it.type==="completar"&&!ok&&jg.txt?`<p>Escribiste «${esc(jg.txt)}».</p>`:""}</div>${nextBtn()}`;
+ if(answered)h+=`<div class="fb ${ok?"ok":"bad"}"><b class="t">${ok?(jg.tries>0?"¡Bien, a la segunda!":pick(["¡Bien!","¡Eso!","Отлично!","¡Perfecto!"])):"Era «"+esc(it.ans)+"»"}</b><p>${esc(it.rule)}</p>${it.nota?`<p>Ojo con esta palabra: ${esc(it.nota)}.</p>`:""}${it.type==="completar"&&!ok&&jg.txt?`<p>Escribiste «${esc(jg.txt)}».</p>`:""}</div>${nextBtn()}`;
  else if(!jg.hint)h+=`<button class="linkbtn" data-act="jHint" style="align-self:center">Necesito una pista</button>`;
  return h+`</div>`}
 function aspectHTML(it){const q=it.q;const answered=jg.ans!=null;const ok=answered&&jg.res[jg.i]==="ok";
