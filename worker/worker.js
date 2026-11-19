@@ -57,7 +57,18 @@ export default {
   async fetch(req, env) {
     const h = cors(req.headers.get("Origin") || "");
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: h });
-    if (req.method !== "POST") return new Response("Матешка IA", { headers: h });
+    if (req.method !== "POST") {
+      // Prueba desde el navegador: https://…workers.dev/?probar=1
+      if (new URL(req.url).searchParams.has("probar")) {
+        try {
+          const r = await gemini(env, 'Respondé SOLO con JSON: {"t": "Привет! Funciona."}');
+          return new Response("Матешка IA · Gemini responde bien: " + JSON.stringify(r), { headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
+        } catch (e) {
+          return new Response("Матешка IA · Gemini dio error: " + String(e.message || e), { status: 502, headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
+        }
+      }
+      return new Response("Матешка IA · versión 2", { headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
+    }
     if (!ORIGENES.includes(req.headers.get("Origin") || "")) return new Response("no", { status: 403, headers: h });
     let b;
     try { b = await req.json(); } catch { return new Response("JSON inválido", { status: 400, headers: h }); }
