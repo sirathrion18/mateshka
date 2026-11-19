@@ -31,6 +31,7 @@ FORMATO: {"t": "la traducción natural", "acc": "el texto en ruso (el original o
 }
 
 async function gemini(env, prompt) {
+  if (!env.GEMINI_KEY) throw new Error("Falta el secreto GEMINI_KEY en Cloudflare");
   const modelos = env.MODEL ? [env.MODEL] : MODELOS;
   let ultimo = "";
   for (const m of modelos) {
@@ -44,7 +45,10 @@ async function gemini(env, prompt) {
       const txt = d?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "{}";
       try { return JSON.parse(txt); } catch { return { t: txt }; }
     }
-    ultimo = `${m}: ${r.status}`;
+    let det = "";
+    try { const e = await r.json(); det = e?.error?.message || ""; } catch {}
+    ultimo += `${m}: ${r.status} ${det}`.trim().slice(0, 300) + " | ";
+    console.error("Gemini", m, r.status, det);
   }
   throw new Error(ultimo);
 }
