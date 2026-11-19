@@ -1,5 +1,5 @@
 /* Матешка: funciona sin conexión. Subí VERSION en cada cambio para que el celu baje la versión nueva. */
-const VERSION = "mateshka-v10";
+const VERSION = "mateshka-v11";
 const Q = "?v=10";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
   "css/app.css" + Q, ...["datos", "a2", "juegos", "festejos", "app", "consulta", "repaso", "jugar", "ia", "traductor", "principal", "paginas", "eventos"].map(f => "js/" + f + ".js" + Q)];

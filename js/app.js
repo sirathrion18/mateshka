@@ -128,7 +128,7 @@ function go(t){const prev=tab;tab=t;document.querySelectorAll(".tab[data-tab]").
 function render(){({home:rHome,lib:rLib,review:rReview,ref:rRef})[tab]();noBreak(main);updateDavai()}
 /* Que ninguna palabra quede partida en dos renglones: el guion de una terminación (-ом) y el de un rango (9–11) no cortan línea. */
 function noBreak(root){if(!root)return;const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const ns=[];let n;while(n=tw.nextNode())ns.push(n);
- ns.forEach(n=>{const t=n.textContent;if(!/[-–\/]/.test(t))return;const u=t.replace(/(^|[\s(\/«])-(?=[а-яёА-ЯЁ])/g,"$1\u2011").replace(/([а-яё])-(?=[\s)\/.,:;»]|$)/gi,"$1\u2011").replace(/(\d)–(\d)/g,"$1\u2060–\u2060$2");if(u!==t)n.textContent=u})}
+ ns.forEach(n=>{const t=n.textContent;if(!/[-–\/]/.test(t))return;const u=t.replace(/(^|[\s(\/«])-(?=[а-яёА-ЯЁ])/g,"$1\u2011").replace(/([а-яё])-(?=[\s)\/.,:;»]|$)/gi,"$1\u2011").replace(/([а-яё]\u0301?)-(?=[а-яё])/gi,"$1\u2011").replace(/(\d)–(\d)/g,"$1\u2060–\u2060$2");if(u!==t)n.textContent=u})}
 function toast(t){document.querySelectorAll(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.setAttribute("role","status");d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2500)}
 const fmtDate=s=>{const d=pd(s);return {d:d.getDate(),m:DIAS[d.getDay()]+" "+MESES[d.getMonth()]}};
 const ICON={lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>',

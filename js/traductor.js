@@ -7,7 +7,7 @@ let FORMAS=null,formasP=null;
 function cargarFormas(){if(FORMAS)return Promise.resolve(FORMAS);if(formasP)return formasP;
  formasP=fetch("js/formas.json?v=7").then(r=>r.ok?r.json():null).then(d=>{FORMAS=d||{L:[],T:[],F:{}};return FORMAS}).catch(()=>{FORMAS={L:[],T:[],F:{}};return FORMAS});return formasP}
 const RUX=/[а-яё]/i;
-const trKey=s=>String(s).toLowerCase().replace(/[́']/g,"").replace(/ё/g,"е").trim();
+const trKey=s=>String(s).toLowerCase().replace(/\u2011/g,"-").replace(/[́']/g,"").replace(/ё/g,"е").trim();
 /* índice de lo que está en la app (con acentos y lección) */
 let APPIDX=null;
 function appIdx(){if(APPIDX)return APPIDX;const M=new Map();const add=(form,e)=>{const k=trKey(form);if(!k)return;if(!M.has(k))M.set(k,[]);const a=M.get(k);if(!a.some(x=>x.ru===e.ru&&x.what===e.what))a.push(e)};
@@ -25,6 +25,8 @@ function appIdx(){if(APPIDX)return APPIDX;const M=new Map();const add=(form,e)=>
   PR.rows.forEach((r,ci)=>String(r[j]||"").split(/[\s(),/]+/).filter(x=>/[а-яё]/i.test(x)&&x.length>1).forEach(f=>add(f,Object.assign({what:CN[ci+1]},e))))});
  [["и","y"],["а","y, pero (contraste)"],["но","pero"],["или","o"],["не","no (delante del verbo)"],["нет","no; no hay"],["да","sí"],["в","en; a (a un lugar)"],["во","en; a"],["на","sobre, en; a"],["с","con; desde"],["со","con"],["к","hacia, a (una persona)"],["у","junto a; у меня = tengo"],["о","sobre, acerca de"],["об","sobre, acerca de"],["по","por; según"],["из","de, desde (adentro)"],["от","de, desde (una persona)"],["до","hasta"],["за","detrás de; por"],["для","para"],["без","sin"],["после","después de"],["что","qué; que"],["кто","quién"],["как","cómo"],["где","dónde"],["куда","adónde"],["когда","cuándo"],["почему","por qué"],["это","esto, es"],["этот","este"],["эта","esta"],["тот","ese, aquel"],["мой","mi, mío"],["моя","mi, mía"],["моё","mi, mío"],["мои","mis, míos"],["твой","tu, tuyo"],["наш","nuestro"],["ваш","su, de ustedes"],["его","su (de él); lo"],["её","su (de ella); la"],["их","su (de ellos); los"],["свой","su propio"],["тоже","también"],["уже","ya"],["ещё","todavía; más"],["очень","muy"],["тут","acá"],["там","allá"],["здесь","acá"],["всё","todo"],["все","todos"],["сам","mismo"],["себя","sí mismo"],["ли","partícula de pregunta"],["бы","partícula del condicional"],["же","partícula de énfasis"],["вот","acá está, mirá"],["ну","bueno"]].forEach(([w,es])=>add(w,{ru:w,es,kind:"palabra corta",src:"",what:""}));
  NOUNS.forEach(n=>{["s","p"].forEach(num=>{if(!n[num])return;n[num].split(",").forEach((f,i)=>add(f,{ru:n.w,es:n.es,kind:"sustantivo",src:"",what:CN[i]+" "+(num==="s"?"singular":"plural")}))})});
+ /* las palabras de «Lo principal» que llevan su traducción a mano (solo si no estaban) */
+ if(typeof PRINCIPAL!=="undefined")Object.keys(PRINCIPAL).forEach(b=>Object.entries(PRINCIPAL[b]).forEach(([pgn,e])=>(e[1]||[]).forEach(s=>{const [ru,es]=String(s).split("|");if(!es)return;const r=A(ru.trim());if(M.has(trKey(r)))return;add(r,{ru:r,es:es.trim(),kind:"palabra",src:bookName(b).split(" · ")[0]+" · p. "+pgn})})));
  APPIDX=M;return M}
 /* busca una palabra: primero en la app, después en el diccionario de formas */
 function buscarPalabra(w){const k=trKey(w);const out=[];const seenK=new Set();
@@ -47,7 +49,7 @@ const EXT=(t,ru)=>{const e=encodeURIComponent(t);const s=ru?"ru":"es",d=ru?"es":
 function trCard(e){return `<div class="trc"><div class="trc-h"><b class="ru">${esc(e.ru)}</b>${e.kind?`<span class="trk">${esc(e.kind)}</span>`:""}</div>
  ${e.es?`<p class="tre">${esc(e.es)}</p>`:`<p class="tre trm">Sin traducción en tus libros.</p>`}
  ${e.what?`<p class="trw">Esta forma: <b>${esc(e.what)}</b></p>`:""}${e.src?`<p class="trs-src">${esc(e.src)}</p>`:""}</div>`}
-function trBody(){const q=trState.q.trim();const ru=RUX.test(q);const words=ru?(q.match(/[а-яёА-ЯЁ́-]+/g)||[]):[];
+function trBody(){const q=trState.q.trim();const ru=RUX.test(q);const words=ru?(q.match(/[а-яёА-ЯЁ́\u2011-]+/g)||[]):[];
  let h="";
  if(!q)h=`<p class="note">Escribí o pegá en ruso o en castellano. También podés tocar cualquier palabra rusa de la app.</p>`;
  else if(ru&&words.length===1){const r=buscarPalabra(words[0]);h=r.length?r.slice(0,4).map(trCard).join(""):`<p class="note">«${esc(words[0])}» no está en tus libros todavía.</p>`}
@@ -88,6 +90,9 @@ function wordAt(x,y){let node,off;
  if(!node||node.nodeType!==3)return null;const t=node.textContent;const isW=c=>/[а-яёА-ЯЁ́]/.test(c);
  let a=off,b=off;if(!isW(t[a]||"")&&isW(t[a-1]||""))a--,b--;if(!isW(t[a]||""))return null;
  while(a>0&&isW(t[a-1]))a--;while(b<t.length&&isW(t[b]))b++;
+ /* «по‑русски»: el guion entre letras queda adentro de la palabra */
+ while(a>1&&/[-\u2011]/.test(t[a-1])&&isW(t[a-2])){a--;while(a>0&&isW(t[a-1]))a--}
+ while(b<t.length-1&&/[-\u2011]/.test(t[b])&&isW(t[b+1])){b++;while(b<t.length&&isW(t[b]))b++}
  const rg=document.createRange();rg.setStart(node,a);rg.setEnd(node,b);const rc=rg.getBoundingClientRect();
  if(x<rc.left-4||x>rc.right+4||y<rc.top-4||y>rc.bottom+4)return null;return {w:t.slice(a,b),rc}}
 document.addEventListener("click",e=>{if(e.defaultPrevented)return;
