@@ -55,6 +55,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act],[data
   case "pgKnow":{const p=pendOf(pg.b,pg.from,pg.to);if(p)pendDone(p.id);pj=null;keepScroll(()=>openRange(pg.b,pg.from,pg.to));break}
   case "pgKnowId":pendDone(d.id);if(ov.firstChild&&curOv)keepScroll(curOv);else keepMain(render);break;
   case "pgExplain":pgExplain();break;
+  case "pgStar":toggleStar(pg.b,+d.p,d.w);keepScroll(()=>openRange(pg.b,pg.from,pg.to));break;
   case "pgPlay":tick();pgPlay();break;
   case "pjFlip":pj.flip=true;tick();renderPj();break;
   case "pjSelf":pj.res[pj.i]=d.ok==="1"?"ok":"bad";pjNext();break;

@@ -36,26 +36,53 @@ function openPagesPick(){curOv=()=>openPagesPick();if(!FORMAS){cargarFormas().th
    document.getElementById("pgInfo").textContent=(ls.length?ls.map(n=>lbl(pg.b,n)).join(", ")+" · ":"")+(pg.to-pg.from+1)+(pg.to===pg.from?" página":" páginas")+(pg.to-pg.from>40?" · es mucho: probá con menos":"")};
   f.addEventListener("input",()=>{if(+t.value<+f.value)t.value=f.value;upd()});t.addEventListener("input",upd);upd()}}
 
+/* --- lo principal (marcado a mano en principal.js) y las estrellas de Agus --- */
+let LKEYS=null;
+function lByKey(k){if(!LKEYS){LKEYS=new Map();(FORMAS&&FORMAS.L||[]).forEach((L,i)=>{const kk=trKey(L[0]);if(!LKEYS.has(kk))LKEYS.set(kk,i)})}const i=LKEYS.get(k);return i==null?null:FORMAS.L[i]}
+function lookupWord(s){const [ru0,es0]=String(s).split("|");const ru=A(ru0.trim());const k=trKey(ru);const app=appIdx().get(k)||[];const base=app.find(e=>!e.what)||null;const L=lByKey(k);
+ return {ru:base?base.ru:ru,es:(es0||"").trim()||(base&&base.es)||(L&&L[1])||"",kind:(base&&base.kind)||(L&&L[2])||"",key:k}}
+function conjOf(w){const v=allVerbs().find(x=>trKey(x.inf)===w.key);if(v&&v.forms)return `${bare(PRON[0])} ${v.forms[0]}, ты ${v.forms[1]}, они ${v.forms[5]}`;
+ const p=PAIRS.find(x=>trKey(x.ip)===w.key||trKey(x.pf)===w.key);if(p){const f=trKey(p.ip)===w.key?p.pres:p.fut;if(f&&f[0])return `я ${f[0]}, ты ${f[1]}, они ${f[2]}`}return ""}
+const starKey=(b,p)=>b+":"+p;
+function starsOf(b,p){return ((S.star||{})[starKey(b,p)]||[])}
+function isStar(b,p,ru){return starsOf(b,p).some(x=>trKey(x)===trKey(ru))}
+function toggleStar(b,p,ru){if(!S.star)S.star={};const k=starKey(b,p);const a=S.star[k]||[];const i=a.findIndex(x=>trKey(x)===trKey(ru));if(i>=0)a.splice(i,1);else a.push(ru);if(a.length)S.star[k]=a;else delete S.star[k];save();tick()}
+function principalData(b,from,to){const out=[],keys=new Set();const P=(PRINCIPAL[b]||{});
+ for(let p=from;p<=to;p++){const e=P[p];if(e){const words=(e[1]||[]).map(lookupWord);words.forEach(w=>keys.add(w.key));out.push({page:p,t:A(e[0]),n:A(e[2]||""),words})}}
+ const stars=[];for(let p=from;p<=to;p++)starsOf(b,p).forEach(ru=>{const w=lookupWord(ru);if(!keys.has(w.key)){keys.add(w.key);stars.push(Object.assign(w,{page:p}))}});
+ let missing=0;for(let p=from;p<=to;p++)if(!P[p])missing++;
+ return {pages:out,stars,keys,missing}}
+function chip(b,page,w){const on=isStar(b,page,w.ru);const cj=/^verbo/.test(w.kind)?conjOf(w):"";
+ return `<div class="pw"><span class="r ru">${esc(w.ru)}</span><span class="e">${w.es?esc(w.es):'<span class="trm">tocá para traducir</span>'}</span>${cj?`<span class="cj ru">${cj.split(", ").map(esc).join("<br>")}</span>`:""}<button class="star" data-act="pgStar" data-p="${page}" data-w="${esc(w.ru)}" aria-pressed="${on}" aria-label="${on?"Sacar la estrella":"Marcar con estrella"}">${on?"★":"☆"}</button></div>`}
+
 /* --- ver un tramo --- */
 function pendOf(b,f,t){return (S.pend||[]).find(x=>x.b===b&&x.from===f&&x.to===t)}
 function openRange(b,from,to,flt){if(flt)pg.f=flt;pg.b=b;pg.from=from;pg.to=to;curOv=()=>openRange(b,from,to);
  if(!FORMAS){cargarFormas().then(()=>openRange(b,from,to));return}
- {const D=rangeData(b,from,to);const pe=pendOf(b,from,to);
+ {const D=rangeData(b,from,to);const PD=principalData(b,from,to);const pe=pendOf(b,from,to);
   const tabs=[["all","Todo"],["res","Resumen"],["w","Palabras"],["v","Verbos"],["p","Pares"]];const f=pg.f;
   const sec=(k,t,n,body)=>(f==="all"||f===k)?`<section class="sec"><h2 class="sec-t">${t} <span class="counter">${n}</span></h2>${body}</section>`:"";
-  const wHTML=list=>`<div class="ugrid">${list.map(e=>`<div class="word"><span class="r ru">${esc(e.ru)}</span><span class="e">${e.es?esc(e.es):'<span class="trm">tocá para traducir</span>'}</span></div>`).join("")}</div>`;
+  const wHTML=list=>`<div class="pwgrid">${list.map(e=>chip(b,e.page,e)).join("")}</div>`;
   const vHTML=list=>`<div class="vgroup">${list.map(e=>{const v=allVerbs().find(x=>trKey(x.inf)===trKey(e.ru));return v?verbRow(v):`<div class="vrow" style="cursor:default"><span><b class="ru">${esc(e.ru)}</b><br><span class="e">${esc(e.es||"")}</span></span><span class="meta">${esc(e.kind.replace("verbo ",""))}</span></div>`}).join("")}</div>`;
-  const tr=D.W.filter(e=>e.es),sin=D.W.filter(e=>!e.es);
+  const tr=D.W.filter(e=>e.es),sin=D.W.filter(e=>!e.es);const total=D.W.length+D.V.length;
+  const principal=PD.pages.map(x=>`<div class="gpoint pcard"><span class="trs-src">p. ${x.page}</span><h3 class="ru">${esc(x.t)}</h3>${x.n?`<p>${esc(x.n)}</p>`:""}${x.words.length?`<div class="pwgrid">${x.words.map(w=>chip(b,x.page,w)).join("")}</div>`:""}</div>`).join("");
   const body=`<div class="les-hero" style="background:var(--mint)"><span class="n" style="font-size:15px">${from===to?from:from+"–"+to}</span><div><div class="w">${esc(bookName(b))}</div><div style="font-weight:700">${esc(lessonsOf(b,from,to).map(n=>lbl(b,n)).join(", ")||"")}</div></div></div>
-  <div class="steps3"><button class="btn red" data-act="pgPlay">Jugar con estas páginas</button>${pe?`<button class="btn" data-act="pgKnow">Ya lo sé ✓</button>`:`<button class="btn" data-act="pgPend">Dejar pendiente</button>`}</div>
+  <div class="steps3"><button class="btn red" data-act="pgPlay">Jugar con lo principal</button>${pe?`<button class="btn" data-act="pgKnow">Ya lo sé ✓</button>`:`<button class="btn" data-act="pgPend">Dejar pendiente</button>`}</div>
   ${pe?`<p class="banner"><b>Pendiente</b>Está en tu Inicio desde el ${fmtDate(pe.at).d} ${fmtDate(pe.at).m}. Cuando ya lo sepas, tocá «Ya lo sé».</p>`:""}
+  <section class="sec"><h2 class="sec-t">Lo principal</h2>
+   ${principal||`<p class="note">Estas páginas todavía no tienen «lo principal» marcado. Abrí «Todo lo que aparece» y marcá con ☆ lo que quieras repasar.</p>`}
+   ${PD.pages.length&&PD.missing?`<p class="note">${PD.missing===1?"Una página":PD.missing+" páginas"} de este tramo todavía no ${PD.missing===1?"está marcada":"están marcadas"}.</p>`:""}
+   ${PD.stars.length?`<h3 class="sub">Marcadas por vos ★</h3><div class="pwgrid">${PD.stars.map(w=>chip(b,w.page,w)).join("")}</div>`:""}
+   <p class="note">Con ☆ marcás lo que querés repasar además de esto; tocá de nuevo para sacarlo. El juego usa lo principal y lo que marcaste.</p>
+   <button class="btn block" data-act="pgExplain">Explicámelo de otra forma</button></section>
+  <details class="hist pall" ${pg.open?"open":""}><summary><b>Todo lo que aparece en estas páginas</b> · ${total} palabras, también las de los ejercicios</summary>
+  <div class="sec" style="margin-top:12px">
   <div class="pfil" role="group" aria-label="Mostrar">${tabs.map(t=>`<button data-act="pgF" data-f="${t[0]}" aria-pressed="${f===t[0]}">${t[1]}</button>`).join("")}</div>
-  ${sec("res","Resumen",D.R.length,(D.R.length?D.R.map(x=>`<div class="gpoint"><h3 class="ru">${esc(x.g[0])}</h3><p>${esc(x.g[1])}</p>${x.g[2].map(e=>`<p class="exm ru">${esc(e)}</p>`).join("")}<span class="trs-src">p. ${x.page}</span></div>`).join(""):`<p class="note">En estas páginas no hay un tema de gramática nuevo: son textos y ejercicios.</p>`)+
-    `<button class="btn block" data-act="pgExplain">Explicámelo de otra forma</button>`)}
-  ${sec("w","Palabras",D.W.length,(tr.length?wHTML(tr):"")+(sin.length?`<details class="hist"><summary><b>Otras palabras de estas páginas</b> · ${sin.length}</summary><p class="note">Todavía sin traducción en la app: tocá una para traducirla.</p>${wHTML(sin)}</details>`:"")+(!D.W.length?`<p class="note">No encontré palabras en estas páginas.</p>`:""))}
-  ${sec("v","Verbos",D.V.length,D.V.length?vHTML(D.V):`<p class="note">No hay verbos en estas páginas.</p>`)}
-  ${sec("p","Pares",D.pairs.length,D.pairs.length?pairsTable(D.pairs):`<p class="note">No hay pares de aspecto en estas páginas.</p>`)}`;
-  overlay(pgLabel(b,from,to),body)}}
+  ${sec("res","Resumen de la lección",D.R.length,D.R.length?D.R.map(x=>`<div class="gpoint"><h3 class="ru">${esc(x.g[0])}</h3><p>${esc(x.g[1])}</p>${x.g[2].map(e=>`<p class="exm ru">${esc(e)}</p>`).join("")}<span class="trs-src">p. ${x.page}</span></div>`).join(""):`<p class="note">Sin temas del resumen en estas páginas.</p>`)}
+  ${sec("w","Palabras",D.W.length,(tr.length?wHTML(tr):"")+(sin.length?wHTML(sin):"")+(!D.W.length?`<p class="note">No encontré palabras en estas páginas.</p>`:""))}
+  ${sec("v","Verbos",D.V.length,D.V.length?wHTML(D.V):`<p class="note">No hay verbos en estas páginas.</p>`)}
+  ${sec("p","Pares",D.pairs.length,D.pairs.length?pairsTable(D.pairs):`<p class="note">No hay pares de aspecto en estas páginas.</p>`)}</div></details>`;
+  overlay(pgLabel(b,from,to),body);const det=ov.querySelector("details.pall");if(det)det.addEventListener("toggle",()=>{pg.open=det.open})}}
 
 /* --- pendientes --- */
 function pendList(){const ps=(S.pend||[]).slice().sort((a,b)=>(a.last||a.at).localeCompare(b.last||b.at));
@@ -68,8 +95,11 @@ function oldestPend(){const ps=(S.pend||[]).slice().sort((a,b)=>(a.last||a.at).l
 /* --- juego mezclado: 2 tarjetas, 3 opciones, 3 para escribir --- */
 let pj=null;
 function pgPlay(){const D=rangeData(pg.b,pg.from,pg.to);
- const pool=shuffle(D.W.concat(D.V).filter(e=>e.es)).map(e=>({ru:e.ru,es:e.es}));
- const pairQ=shuffle(D.pairs).map(p=>Math.random()<.5?{ru:p.pf,es:p.es,ask:"El perfectivo de «"+bare(p.ip)+"»",ans:p.pf}:{ru:p.ip,es:p.es,ask:"El imperfectivo de «"+bare(p.pf)+"»",ans:p.ip});
+ const PD=principalData(pg.b,pg.from,pg.to);let pool=PD.pages.flatMap(x=>x.words).concat(PD.stars).filter(e=>e.es).map(e=>({ru:e.ru,es:e.es,key:e.key}));
+ {const seenK=new Set();pool=shuffle(pool.filter(e=>!seenK.has(e.key)&&seenK.add(e.key)))}
+ let mainPairs=D.pairs.filter(p=>PD.keys.has(trKey(p.ip))||PD.keys.has(trKey(p.pf)));
+ if(pool.length<3){toast("Acá hay poco marcado como principal: juego con todo lo de estas páginas");pool=shuffle(D.W.concat(D.V).filter(e=>e.es)).map(e=>({ru:e.ru,es:e.es}));mainPairs=D.pairs}
+ const pairQ=shuffle(mainPairs).map(p=>Math.random()<.5?{ru:p.pf,es:p.es,ask:"El perfectivo de «"+bare(p.ip)+"»",ans:p.pf}:{ru:p.ip,es:p.es,ask:"El imperfectivo de «"+bare(p.pf)+"»",ans:p.ip});
  if(pool.length+pairQ.length<3){toast("En estas páginas hay muy poco para jugar: probá con más páginas");return}
  const items=[];let k=0;const take=()=>pool[k++%pool.length];
  for(let i=0;i<2&&pool.length;i++)items.push(Object.assign({t:"flip"},take()));
@@ -102,7 +132,7 @@ function finishPj(){const ok=pj.res.filter(x=>x==="ok").length,n=pj.items.length
  ${miss.length?`<section class="sec"><h2 class="sec-t">Para mirar otra vez</h2><div class="rlist2">${miss.map(it=>`<div class="rli"><b class="ru">${esc(it.ans||it.ru)}</b><span class="x">${esc(it.es)}</span></div>`).join("")}</div></section>`:""}
  ${pe?`<button class="btn red block" data-act="pgKnow">Ya lo sé: sacar de pendientes</button>`:miss.length?`<button class="btn red block" data-act="pgPend">Dejar pendiente</button>`:""}
  <button class="btn block" data-act="pgPlay">Otra ronda</button><button class="btn block" data-act="pjBack">Volver a las páginas</button></div>`,{backAct:"pjBack"});if(ok>=n-1)tick()}
-function pgExplain(){const D=rangeData(pg.b,pg.from,pg.to);const temas=D.R.map(x=>bare(x.g[0])).join("; ");
+function pgExplain(){const PD=principalData(pg.b,pg.from,pg.to);const D=rangeData(pg.b,pg.from,pg.to);const temas=(PD.pages.length?PD.pages.map(x=>bare(x.t)+(x.words.length?" ("+x.words.map(w=>bare(w.ru)).join(", ")+")":"")):D.R.map(x=>bare(x.g[0]))).join("; ");
  const q=`Estoy repasando ${bare(bookName(pg.b))}, ${rangoTxt(pg.from,pg.to)}${temas?" (temas: "+temas+")":""}. Explicámelo de otra forma, más simple y con otros ejemplos, como si fuera la primera vez que lo veo.`;
  if(IA_URL){overlay("Explicación",`<div class="tria"><p class="note">Pensando…</p></div>`,{backAct:"pjBack"});
   iaPedir({tarea:"explicar",texto:q,visto:seenSummary()}).then(r=>{overlay("Explicación",`<div class="tria"><p class="pre">${esc(r.t||"")}</p>${r.notas&&r.notas.length?`<ul class="plain small">${r.notas.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}</div>`,{backAct:"pjBack"})}).catch(()=>{toast("No pude conectar con la IA: te copio el pedido");copyText(askPrompt(q))})}
