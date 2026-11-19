@@ -4,4 +4,4 @@
 "use strict";
 const IA_URL="https://mateshka-ia.nachocarp18.workers.dev";
 async function iaPedir(body){const r=await fetch(IA_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
- if(!r.ok)throw new Error("IA "+r.status);return r.json()}
+ if(!r.ok){let t="";try{t=await r.text()}catch(e){}throw new Error(r.status+(t?": "+t.slice(0,160):""))}return r.json()}

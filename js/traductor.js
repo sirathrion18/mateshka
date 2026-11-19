@@ -14,7 +14,7 @@ function appIdx(){if(APPIDX)return APPIDX;const M=new Map();const add=(form,e)=>
  const where=(b,n)=>bookName(b).split(" · ")[0]+" · "+lbl(b,n);
  allWords().forEach(w=>add(w.ru,{ru:w.ru,es:w.es,kind:"palabra",src:where(w.book,w.lesson)}));
  allVerbs().forEach(v=>{const e={ru:v.inf,es:v.es,kind:"verbo",src:where(v.book,v.lesson)};add(v.inf,Object.assign({what:""},e));
-  v.forms.forEach((f,i)=>add(f.split(" ")[0],Object.assign({what:(v.group==="PF"?"futuro":"presente")+", "+bare(PRON[i])},e)));v.past.forEach((f,i)=>f&&add(f,Object.assign({what:"pasado "+["masculino","femenino","plural"][i]},e)))});
+  v.forms.forEach((f,i)=>add(f.split(" ")[0],Object.assign({what:(v.group==="PF"||bare(v.inf)==="быть"?"futuro":"presente")+", "+bare(PRON[i])},e)));v.past.forEach((f,i)=>f&&add(f,Object.assign({what:"pasado "+["masculino","femenino","plural"][i]},e)))});
  allAdjs().forEach(a=>a.forms.forEach((f,i)=>add(f,{ru:a.m,es:a.es,kind:"adjetivo",src:where(a.book,a.lesson),what:i?["","femenino","neutro","plural"][i]:""})));
  PAIRS.forEach(p=>{const e=(ru,asp)=>({ru,es:p.es,kind:"verbo "+asp,src:where(p.book,p.lesson),pair:p});add(p.ip,Object.assign({what:""},e(p.ip,"imperfectivo")));add(p.pf,Object.assign({what:""},e(p.pf,"perfectivo")));
   p.pres.forEach((f,i)=>f&&add(f,Object.assign({what:"presente, "+["я","ты","они"][i]},e(p.ip,"imperfectivo"))));p.fut.forEach((f,i)=>f&&add(f,Object.assign({what:"futuro, "+["я","ты","они"][i]},e(p.pf,"perfectivo"))))});
@@ -76,7 +76,7 @@ function openTr(q){trState={q:q||"",ia:null,iaBusy:false,iaErr:""};let el=docume
 function paintTr(){const o=document.getElementById("trOut");if(o){o.innerHTML=trBody();noBreak(o)}}
 function closeTr(){const el=document.getElementById("trSheet");if(el)el.remove();document.body.classList.toggle("lock",!!ov.firstChild);clearMark()}
 async function trIA(){const q=trState.q.trim();if(!q||!IA_URL)return;trState.iaBusy=true;paintTr();
- try{const r=await iaPedir({tarea:"traducir",texto:q,visto:seenSummary()});trState.ia=Object.assign({q},r)}catch(e){trState.iaErr="No pude conectar con la IA. Probá con los botones de abajo."}
+ try{const r=await iaPedir({tarea:"traducir",texto:q,visto:seenSummary()});trState.ia=Object.assign({q},r)}catch(e){trState.iaErr="No pude conectar con la IA. Probá con los botones de abajo. (Detalle: "+String(e&&e.message||e).slice(0,180)+")"}
  trState.iaBusy=false;paintTr()}
 
 /* --- tocar una palabra rusa en cualquier pantalla --- */
