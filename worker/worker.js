@@ -3,7 +3,8 @@
 // La app le manda {tarea:"traducir"|"explicar", texto, visto} y recibe {t, acc, notas}.
 
 const ORIGENES = ["https://sirathrion18.github.io", "http://localhost:8765"];
-const MODELOS = ["gemini-flash-latest", "gemini-2.5-flash"];
+// Si uno está saturado (503) o ya no existe (404), prueba el siguiente.
+const MODELOS = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-flash-lite-latest"];
 
 function cors(origin) {
   const ok = ORIGENES.includes(origin) ? origin : ORIGENES[0];
@@ -35,11 +36,15 @@ async function gemini(env, prompt) {
   const modelos = env.MODEL ? [env.MODEL] : MODELOS;
   let ultimo = "";
   for (const m of modelos) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+    let r;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+      signal: AbortSignal.timeout(20000),
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_KEY },
       body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { temperature: 0.3, responseMimeType: "application/json" } })
-    });
+      });
+    } catch (e) { ultimo += `${m}: tardó demasiado | `; continue; }
     if (r.ok) {
       const d = await r.json();
       const txt = d?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("") || "{}";
@@ -67,7 +72,7 @@ export default {
           return new Response("Матешка IA · Gemini dio error: " + String(e.message || e), { status: 502, headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
         }
       }
-      return new Response("Матешка IA · versión 2", { headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
+      return new Response("Матешка IA · versión 3", { headers: { ...h, "Content-Type": "text/plain; charset=utf-8" } });
     }
     if (!ORIGENES.includes(req.headers.get("Origin") || "")) return new Response("no", { status: 403, headers: h });
     let b;
