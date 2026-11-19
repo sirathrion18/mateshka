@@ -1,8 +1,8 @@
 /* Матешка: funciona sin conexión. Subí VERSION en cada cambio para que el celu baje la versión nueva. */
-const VERSION = "mateshka-v6";
-const Q = "?v=6";
+const VERSION = "mateshka-v7";
+const Q = "?v=7";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
-  "css/app.css" + Q, ...["datos", "a2", "juegos", "festejos", "app", "consulta", "repaso", "jugar", "eventos"].map(f => "js/" + f + ".js" + Q)];
+  "css/app.css" + Q, ...["datos", "a2", "juegos", "festejos", "app", "consulta", "repaso", "jugar", "ia", "traductor", "paginas", "eventos"].map(f => "js/" + f + ".js" + Q)];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

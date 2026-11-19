@@ -23,13 +23,14 @@
  document.documentElement.setAttribute("data-theme",t);
  var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==="dark"?"#1A1317":"#FFF4EC"})();
 </script>
-<link rel="stylesheet" href="css/app.css?v=6">
+<link rel="stylesheet" href="css/app.css?v=7">
 </head>
 <body>
 <div class="app" id="app">
   <header class="hdr gut" id="hdr"><div class="hdr-in">
     <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="43" rx="19" ry="18" fill="var(--acc)" stroke="var(--bc)" stroke-width="2.5"/><circle cx="32" cy="22" r="14" fill="var(--acc)" stroke="var(--bc)" stroke-width="2.5"/><circle cx="32" cy="23" r="8.5" fill="var(--face)"/><circle cx="29" cy="23" r="1.3" fill="#2A1A1F"/><circle cx="35" cy="23" r="1.3" fill="#2A1A1F"/><circle cx="27.4" cy="26" r="1.7" fill="var(--cheek)"/><circle cx="36.6" cy="26" r="1.7" fill="var(--cheek)"/><ellipse cx="32" cy="45.5" rx="11.5" ry="12" fill="var(--face)"/><path d="M25.5 40.5h13l-1.4 9.5q-5.1 3.8-10.2 0z" fill="var(--mint)" stroke="#2A1A1F" stroke-width="1.6"/><path d="M35 41.5l5-9" stroke="#B8BCC4" stroke-width="2.2" stroke-linecap="round"/></svg>
     <div class="tt"><h1 id="hTitle">МАТЕШКА</h1><div class="sub" id="hSub">Tu ruso de todos los días</div></div>
+    <button class="ibtn" id="trBtn" data-act="tr" aria-label="Traducir"><svg viewBox="0 0 24 24" aria-hidden="true"><text x="1.5" y="11.5" font-family="Golos Text,Onest,sans-serif" font-size="11.5" font-weight="800" fill="currentColor">Я</text><text x="12.5" y="21.5" font-family="Onest,sans-serif" font-size="11.5" font-weight="800" fill="currentColor">A</text><path d="M14 4.5h5.5V10M19.5 4.5l-5 5" fill="none" stroke="var(--acc)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button class="ibtn" id="themeBtn" data-act="theme" aria-label="Cambiar a modo oscuro"><svg class="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" id="themeIc"></svg></button>
   </div></header>
   <main class="gut" id="main"></main>
@@ -44,15 +45,18 @@
 <div id="ov"></div>
 <input type="file" id="fileFicha" accept="image/*" class="sr" tabindex="-1" aria-hidden="true">
 <label class="sr" id="hapt" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
-<script src="js/datos.js?v=6"></script>
-<script src="js/a2.js?v=6"></script>
-<script src="js/juegos.js?v=6"></script>
-<script src="js/festejos.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
-<script src="js/consulta.js?v=6"></script>
-<script src="js/repaso.js?v=6"></script>
-<script src="js/jugar.js?v=6"></script>
-<script src="js/eventos.js?v=6"></script>
+<script src="js/datos.js?v=7"></script>
+<script src="js/a2.js?v=7"></script>
+<script src="js/juegos.js?v=7"></script>
+<script src="js/festejos.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
+<script src="js/consulta.js?v=7"></script>
+<script src="js/repaso.js?v=7"></script>
+<script src="js/jugar.js?v=7"></script>
+<script src="js/ia.js?v=7"></script>
+<script src="js/traductor.js?v=7"></script>
+<script src="js/paginas.js?v=7"></script>
+<script src="js/eventos.js?v=7"></script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
 </script>

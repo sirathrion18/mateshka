@@ -65,7 +65,7 @@ let S;
 try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):(migrate()||seed())}catch(e){S=seed()}
 function normalize(){["entries","fichas","writings"].forEach(k=>{if(!Array.isArray(S[k]))S[k]=[]});["weak","errors","days"].forEach(k=>{if(!S[k]||typeof S[k]!=="object")S[k]={}});
  if(!S.extra)S.extra={v:[],a:[]};if(!S.prog)S.prog={a1:20,pp:11,a2:24};
- if(!S.g||typeof S.g!=="object")S.g={};if(!S.g.cerr)S.g.cerr={1:0,2:0,3:0,4:0,5:0};if(!S.g.clast)S.g.clast={};if(!S.g.vseen)S.g.vseen={};if(typeof S.fest!=="number")S.fest=0;
+ if(!Array.isArray(S.pend))S.pend=[];if(!S.g||typeof S.g!=="object")S.g={};if(!S.g.cerr)S.g.cerr={1:0,2:0,3:0,4:0,5:0};if(!S.g.clast)S.g.clast={};if(!S.g.vseen)S.g.vseen={};if(typeof S.fest!=="number")S.fest=0;
  /* Agus ya está en la lección 25 del A2: lo anterior cuenta como visto (una sola vez). */
  if(!S.m4){S.prog.a2=Math.max(S.prog.a2||0,24);S.m4=true}
  {const ids=new Set();S.fichas.forEach(f=>{if(!f.id||ids.has(f.id))f.id=uid();ids.add(f.id)})}}
@@ -210,6 +210,7 @@ function davai(){backStack=[];curOv=null;if(ov.firstChild)ov.innerHTML="";const 
  if(wroteOn(d)<1){const p=todayPicks();const nx=p.find(x=>!writingFor(x.id))||p[0];if(nx){openWrite(nx.id);return}}
  if(!d.c){openCases();return}
  if(!d.v){openVerbs();return}
+ const pe=oldestPend();if(pe){toast("¡Los tres juegos listos! Vamos con un pendiente");pg.f="all";openRange(pe.b,pe.from,pe.to);return}
  toast("¡Hoy ya jugaste los tres! Si querés más, hay repaso.");if(tab!=="review")go("review")}
 
 /* ===== Inicio ===== */
@@ -231,6 +232,7 @@ function rHome(){
   <div class="today"><div class="dots" aria-hidden="true">${[0,1,2].map(i=>`<i class="${i<gd?"on":""}"></i>`).join("")}</div><span class="tx">${gd>=3?"¡Los tres juegos de hoy! Сегодня ты молодец.":gd>=2?"Día sumado a la racha. Falta uno, si querés.":gd===1?"Hoy: 1 de 3. Con uno más sumás el día.":"Hoy: 0 de 3. Con 2 juegos sumás el día."}</span></div></section>
  <section class="sec"><h2 class="sec-t">Juegos de hoy</h2>
   <div class="games">${gm.map(g=>`<button class="game ${g.done?"done":""}" data-act="game" data-k="${g.k}" style="--c:${g.c}"><span class="gi">${g.i}</span><span class="gb"><b>${g.t}</b><span class="${g.k==="write"&&!wn?"ru":""}">${esc(g.s)}</span></span><span class="gs">${g.st}</span></button>`).join("")}</div></section>
+ ${S.pend&&S.pend.length?`<section class="sec"><div class="sec-head"><h2 class="sec-t">Pendientes</h2><button class="linkbtn" data-act="pgPick">+ Páginas</button></div>${pendList()}</section>`:""}
  <section class="sec"><h2 class="sec-t">Para memorizar esta semana</h2>
   ${pinned.length?`<div class="fbig">${pinned.map(f=>`<button class="fcard" data-act="focus" data-id="${f.id}"><span class="fc-t ru">${esc(f.title)}</span>${f.photo&&PH[f.id]?`<img src="${PH[f.id]}" alt="">`:""}<span class="fc-b ru">${esc(f.back)}</span><span class="fc-open">Abrir para estudiar →</span></button>`).join("")}</div>`:`<p class="note">No hay fichas fijadas. Creá una en Repaso.</p>`}
  </section>

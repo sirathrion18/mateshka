@@ -42,6 +42,27 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act],[data
  switch(a){
   case "close":closeOv();break;
   case "theme":toggleTheme();break;
+  case "tr":tick();openTr("");break;
+  case "trClose":closeTr();break;
+  case "trIA":trIA();break;
+  /* repasar por páginas */
+  case "pgPick":openPagesPick();break;
+  case "pgBook":pg.b=d.b;pg.from=null;openPagesPick();break;
+  case "pgGo":if(curOv)push(curOv);pg.f="all";openRange(pg.b,pg.from,pg.to);break;
+  case "pgOpen":if(ov.firstChild&&curOv)push(curOv);pg.f="all";openRange(d.b,+d.f,+d.t);break;
+  case "pgF":pg.f=d.f;keepScroll(()=>openRange(pg.b,pg.from,pg.to));break;
+  case "pgPend":pendAdd();if(pj&&pj.i>=pj.items.length){pj=null;openRange(pg.b,pg.from,pg.to)}else keepScroll(()=>openRange(pg.b,pg.from,pg.to));break;
+  case "pgKnow":{const p=pendOf(pg.b,pg.from,pg.to);if(p)pendDone(p.id);pj=null;keepScroll(()=>openRange(pg.b,pg.from,pg.to));break}
+  case "pgKnowId":pendDone(d.id);if(ov.firstChild&&curOv)keepScroll(curOv);else keepMain(render);break;
+  case "pgExplain":pgExplain();break;
+  case "pgPlay":tick();pgPlay();break;
+  case "pjFlip":pj.flip=true;tick();renderPj();break;
+  case "pjSelf":pj.res[pj.i]=d.ok==="1"?"ok":"bad";pjNext();break;
+  case "pjPick":{const it=pj.items[pj.i];pj.ans=+d.k;const ok=it.opts[+d.k]===it.ru;pj.res[pj.i]=ok?"ok":"bad";tick(!ok);renderPj();break}
+  case "pjNext":pjNext();break;
+  case "pjCheck":pjCheck();break;
+  case "pjHint":pj.hint=true;renderPj();break;
+  case "pjQuit":case "pjBack":pj=null;openRange(pg.b,pg.from,pg.to);break;
   case "davai":davai();break;
   case "game":tick();if(d.k==="write")openWriteMenu();else if(d.k==="cases")openCases();else openVerbs();break;
   /* juegos */
@@ -98,8 +119,8 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act],[data
   case "case":caseSel=d.c;tick();keepMain(rRef);break;
   case "cnum":caseNum=d.v;keepMain(rRef);break;
   case "pfil":pFil=d.f;openPair=null;keepMain(rRef);break;
-  case "pair":{openPair=openPair===d.id?null:d.id;const btn=ov.querySelector('[data-act="ltab"][aria-pressed="true"]');if(ov.firstChild&&btn)keepScroll(()=>openLesson(btn.dataset.b,+btn.dataset.n,"par"));else keepMain(rRef);break}
-  case "verb":{openVerb=openVerb===d.id?null:d.id;const btn=ov.querySelector('[data-act="ltab"][aria-pressed="true"]');if(ov.firstChild&&btn)keepScroll(()=>openLesson(btn.dataset.b,+btn.dataset.n,"ver"));else keepMain(rRef);break}
+  case "pair":{openPair=openPair===d.id?null:d.id;const btn=ov.querySelector('[data-act="ltab"][aria-pressed="true"]');if(ov.firstChild&&btn)keepScroll(()=>openLesson(btn.dataset.b,+btn.dataset.n,"par"));else if(ov.firstChild&&curOv)keepScroll(curOv);else keepMain(rRef);break}
+  case "verb":{openVerb=openVerb===d.id?null:d.id;const btn=ov.querySelector('[data-act="ltab"][aria-pressed="true"]');if(ov.firstChild&&btn)keepScroll(()=>openLesson(btn.dataset.b,+btn.dataset.n,"ver"));else if(ov.firstChild&&curOv)keepScroll(curOv);else keepMain(rRef);break}
   case "import":openImport(d.k);break;
   case "impK":{const t=val("impT");openImport(d.k);document.getElementById("impT").value=t;break}
   case "impCopy":copyText(importPrompt(impK));break;
@@ -128,7 +149,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act],[data
   case "rvSetup":rv.mode="setup";rReview();window.scrollTo(0,0);break;
   case "quickWeak":rv.kind="weak";go("review");startReview();break;
  }});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&ov.firstChild){if(fz.id){fz.id=null;ov.innerHTML="";render()}else closeOv()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.getElementById("trSheet")){closeTr();return}if(e.key==="Escape"&&ov.firstChild){if(fz.id){fz.id=null;ov.innerHTML="";render()}else closeOv()}});
 /* Si la app queda abierta de un día para otro, al volver se rehace Inicio con los juegos nuevos. */
 let lastDay=today();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&today()!==lastDay){lastDay=today();jg=null;if(!ov.firstChild)render()}});
 go("home");
